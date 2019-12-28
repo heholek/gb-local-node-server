@@ -1,0 +1,38 @@
+{
+  "name": "gb-local-node-server",
+  "version": "1.0.0",
+  "description": "Local node server for each GB",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsc-watch --onSuccess \"node ./dist/server.js\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GarbageBytes/gb-local-node-server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GarbageBytes/gb-local-node-server/issues"
+  },
+  "homepage": "https://github.com/GarbageBytes/gb-local-node-server#readme",
+  "devDependencies": {
+    "@types/node": "^13.1.1",
+    "@types/roslib": "^1.0.0",
+    "prettier": "^1.19.1",
+    "pretty-quick": "^2.0.1",
+    "tsc-watch": "^4.0.0",
+    "tslint": "^5.20.1",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.7.4"
+  },
+  "dependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/socket.io-client": "^1.4.32",
+    "axios": "^0.19.0",
+    "roslib": "^1.0.1",
+    "rxjs": "^6.5.4",
+    "socket.io-client": "^2.3.0"
+  }
+}
