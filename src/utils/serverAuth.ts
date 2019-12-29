@@ -53,8 +53,7 @@ export class ServerAuth {
                 this._userId = res.user;
             })
             .catch((err: any) => {
-                console.log(err.body);
-                throw new Error();
+                console.error("Can't connect to Server!");
             })
     }
 }

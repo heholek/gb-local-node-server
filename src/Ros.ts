@@ -11,6 +11,17 @@ export class GbService {
      */
     private topicInformation = [
         {key: "test", name: "/test", messageType: "std_msgs/UInt8"},
+        {key: "rwheel_encoder", name: "/rwheel_encoder", messageType: "std_msgs/UInt32"},
+        {key: "lwheel_encoder", name: "/rwheel_encoder", messageType: "std_msgs/UInt32"},
+        {key: "distance_front", name: "/distance/front", messageType: "std_msgs/Float64"},
+        {key: "distance_rear", name: "/distance/rear", messageType: "std_msgs/Float64"},
+        {key: "distance_right", name: "/distance/right", messageType: "std_msgs/Float64"},
+        {key: "distance_left", name: "/distance/left", messageType: "std_msgs/Float64"},
+        {key: "distance_bottom", name: "/distance/bottom", messageType: "std_msgs/Float64"},
+        {key: "position", name: "/gps", messageType: "sensor_msgs/NavSatFix"},
+        {key: "speed", name: "/gps/speed", messageType: "std_msgs/Float64"},
+        {key: "angle", name: "/gps/angle", messageType: "sensor_msgs/Float64"},
+        {key: "number_of_satellites", name: "/gps/satellites", messageType: "std_msgs/UInt32"},
     ];
 
     private topicMap: Map<string, RosSubscriber>;
@@ -27,11 +38,9 @@ export class GbService {
     public initializeRosConnection(): boolean {
         this.ros.on("error", (e: any) => {
             console.log(e);
-            // TODO Alert User
         });
         this.ros.on("connection", () => {
             this.connected.next(true);
-            // TODO Alert
         });
         this.ros.on("close", () => {this.connected.next(false)});
         return true
@@ -47,20 +56,22 @@ export class GbService {
          }
         return true;
     }
-    //
-    // publishTopic(key, data): void {
-    //     this.subscribers.find(o => o.key === key).publish(data);
-    // }
-    //
-    // subscribeTopic(key): Observable<any> {
-    //     return this.subscribers.find(key).data;
-    // }
+
+    public publishDataToSockets(socket: any) {
+        this.topicMap.forEach((value, key, map) =>{
+            this.rosToSocket(value, key, map, socket)
+        })
+    }
 
     public topic(key: string) {
         return this.topicMap.get(key);
     }
 
-    // TOPIC Subscribers
+    private rosToSocket(ros: RosSubscriber, key: string, map: Map<string, RosSubscriber>, socket: any) {
+        ros.data.subscribe((v: any) => {
+            socket.emit(key, v);
+        })
+    }
 }
 
 /**
