@@ -65,7 +65,6 @@ export class GbService {
 
     private rosToSocket(ros: RosSubscriber, key: string, map: Map<string, RosSubscriber>, socket: any) {
         ros.data.subscribe((v: any) => {
-            console.log(key, v);
             socket.emit(key, v);
         })
     }

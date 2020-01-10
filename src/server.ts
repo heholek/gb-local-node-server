@@ -5,7 +5,6 @@ import {ServerAuth} from "./utils/serverAuth";
 const gbService = new GbService();
 const serverAuth = new ServerAuth();
 
-let byteId = process.env.BYTE_ID;
 const serverAddress = process.env.SERVER_ADDRESS || "http://localhost:3001";
 const socketAddress = process.env.SOCKET_ADDRESS || "http://localhost:8000";
 let socket;
