@@ -16,5 +16,6 @@ serverAuth.loginToApi( serverAddress).then(v => {
     socket = io.connect(`${socketAddress}/${serverAuth.gbId}`, {
         query: {role: "gb", username: serverAuth.username, password: serverAuth.password},
     });
+    socket.emit("test", "test");
     gbService.publishDataToSockets(socket);
 });

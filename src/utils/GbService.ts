@@ -3,12 +3,16 @@ import { BehaviorSubject, Observable, Subject } from "rxjs";
 
 export class GbService {
 
+    // If the Gb is connected
     public connected: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+    // ROS object
     private readonly ros: any;
 
     /**
      * List of subscriber information that is later initialized
      */
+      // TODO Add the following:
+      // gb_camera stream, /gps/filtered/odom ,
     private topicInformation = [
         {key: "test", name: "/test", messageType: "std_msgs/UInt8"},
         {key: "rwheel_encoder", name: "/rwheel_encoder", messageType: "std_msgs/UInt32"},
@@ -24,17 +28,23 @@ export class GbService {
         {key: "number_of_satellites", name: "/gps/satellites", messageType: "std_msgs/UInt32"},
     ];
 
+    // list of topic keys and ROS subscribers
     private topicMap: Map<string, RosSubscriber>;
 
     constructor( ) {
+        // Initialize ROS
         this.ros = new ROSLIB.Ros({
             url: "ws://localhost:9090",
         });
+        // Create a new map
         this.topicMap = new Map();
         this.initializeRosConnection();
         this.initializeRov();
     }
 
+    /**
+     * Initialize ROS connected, listen for ROS connection, error, and close
+     */
     public initializeRosConnection(): boolean {
         this.ros.on("error", (e: any) => {
             console.log(e);
@@ -46,34 +56,35 @@ export class GbService {
         return true
     }
 
+    /**
+     * Initialize all the ROV ROS Subscribers
+     */
     public initializeRov(): boolean {
-        /**
-         * Initializes all ROS connections
-         */
-
+        // Iterate through all the ROS topics, creating a new RosSubscriber object to emit to sockets
         for (const topic of this.topicInformation) {
             this.topicMap.set(topic.key, new RosSubscriber(topic.name, topic.messageType, this.ros));
          }
         return true;
     }
 
+    // Transfer data from each ROS subscriber to a socket
     public publishDataToSockets(socket: any) {
-        this.topicMap.forEach((value, key, map) =>{
-            this.rosToSocket(value, key, map, socket)
+        this.topicMap.forEach((rosTopic, keyOfRosTopic, map) =>{
+            this.rosToSocket(rosTopic, keyOfRosTopic, map, socket)
         })
     }
 
-    private rosToSocket(ros: RosSubscriber, key: string, map: Map<string, RosSubscriber>, socket: any) {
+    // Emit ROS data to a socket
+    private rosToSocket(ros: RosSubscriber, socketChannel: string, map: Map<string, RosSubscriber>, socket: any) {
         ros.data.subscribe((v: any) => {
-            console.log(key, v);
-            socket.emit(key, v);
+            socket.emit(socketChannel, v);
         })
     }
 }
 
 /**
  * Generic ROS subscriber
- * @param name: string- Topic name
+ * @param topicName: string- Topic topicName
  * @param messageType: string - i.e. 'vector_drive/thrusterPercents'
  * @param ROS - initialized ros object
  */
@@ -84,7 +95,7 @@ export class RosSubscriber {
     private topic: any;
 
     constructor(
-        private  name: string,
+        private  topicName: string,
         private messageType: string,
         private ros: any,
     ) {
@@ -96,12 +107,14 @@ export class RosSubscriber {
      * Initialize the ROS connection using the information passed in
      */
     public initialize() {
+        // Create new topic object
         this.topic = new ROSLIB.Topic({
             ros: this.ros,
-            name: this.name,
+            name: this.topicName,
             messageType: this.messageType,
         });
 
+        // Subscribe to data and pass it to the data subject
         this.topic.subscribe((message: any) => {
             this._data.next(message);
         });
@@ -113,6 +126,7 @@ export class RosSubscriber {
      */
     public publish(data: any): boolean {
         // console.log(data);
+        // Check for repeat data
         if (data !== this.lastValue) {
             const message = new ROSLIB.Message(data);
             this.lastValue = message;
@@ -121,6 +135,7 @@ export class RosSubscriber {
         return true;
     }
 
+    // Unsubscribe from the ROS connection
     public unsubscribe() {
         this.topic.unsubscribe();
     }
