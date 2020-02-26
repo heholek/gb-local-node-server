@@ -2,6 +2,10 @@ import io from "socket.io-client";
 import {GbService} from "./utils/GbService";
 import {ServerAuth} from "./utils/serverAuth";
 
+import ip from "ip";
+
+const ipAddress = ip.address();
+
 const gbService = new GbService();
 const serverAuth = new ServerAuth();
 
@@ -13,8 +17,12 @@ let socket;
 serverAuth.loginToApi( serverAddress).then(v => {
     console.log(serverAuth.gbId);
     socket = io.connect(`${socketAddress}/${serverAuth.gbId}`, {
-        query: {role: "gb", username: serverAuth.username, password: serverAuth.password},
+        query: {role: "gb", username: serverAuth.username, password: serverAuth.password, ipAddress },
     });
-    socket.emit("test", "test");
+    socket.on("action", (v: any) => {
+        if (v.type === 'move') {
+            gbService.topicMap.get('move')?.publish(v.data);
+        }
+    });
     gbService.publishDataToSockets(socket);
 });

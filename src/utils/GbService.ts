@@ -24,12 +24,14 @@ export class GbService {
         {key: "distance_bottom", name: "/distance/bottom", messageType: "std_msgs/Float64"},
         {key: "position", name: "/gps", messageType: "sensor_msgs/NavSatFix"},
         {key: "speed", name: "/gps/speed", messageType: "std_msgs/Float64"},
-        {key: "angle", name: "/gps/angle", messageType: "sensor_msgs/Float64"},
+        {key: "angle", name: "/gps/angle", messageType: "std_msgs/Float64"},
         {key: "number_of_satellites", name: "/gps/satellites", messageType: "std_msgs/UInt32"},
+        {key: "camera", name: "/camera/camera/image_mono/compressed", messageType: "sensor_msgs/CompressedImage"},
+        {key: "move", name: "/joy/cmd_vel", messageType: "geometry_msgs/Twist"}
     ];
 
     // list of topic keys and ROS subscribers
-    private topicMap: Map<string, RosSubscriber>;
+    private _topicMap: Map<string, RosSubscriber>;
 
     constructor( ) {
         // Initialize ROS
@@ -37,9 +39,13 @@ export class GbService {
             url: "ws://localhost:9090",
         });
         // Create a new map
-        this.topicMap = new Map();
+        this._topicMap = new Map();
         this.initializeRosConnection();
         this.initializeRov();
+    }
+
+    get topicMap() {
+        return this._topicMap;
     }
 
     /**
@@ -62,14 +68,14 @@ export class GbService {
     public initializeRov(): boolean {
         // Iterate through all the ROS topics, creating a new RosSubscriber object to emit to sockets
         for (const topic of this.topicInformation) {
-            this.topicMap.set(topic.key, new RosSubscriber(topic.name, topic.messageType, this.ros));
+            this._topicMap.set(topic.key, new RosSubscriber(topic.name, topic.messageType, this.ros));
          }
         return true;
     }
 
     // Transfer data from each ROS subscriber to a socket
     public publishDataToSockets(socket: any) {
-        this.topicMap.forEach((rosTopic, keyOfRosTopic, map) =>{
+        this._topicMap.forEach((rosTopic, keyOfRosTopic, map) =>{
             this.rosToSocket(rosTopic, keyOfRosTopic, map, socket)
         })
     }
