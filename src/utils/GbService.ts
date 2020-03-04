@@ -28,7 +28,6 @@ export class GbService {
         {key: "number_of_satellites", name: "/gps/satellites", messageType: "std_msgs/UInt32"},
         {key: "camera", name: "/camera/camera/image_mono/compressed", messageType: "sensor_msgs/CompressedImage"},
         {key: "move", name: "/joy/cmd_vel", messageType: "geometry_msgs/Twist"},
-        {key: "joy", name:"/joy", messageType: "sensor_msgs/Joy"},
     ];
 
     // list of topic keys and ROS subscribers
