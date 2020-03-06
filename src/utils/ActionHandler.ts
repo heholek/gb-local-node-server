@@ -10,8 +10,8 @@ export class ActionHandler {
 
   public handleActions(actionType: string, data: any) {
     switch (actionType) {
-      case "move":
-        this.gbService.topicMap.get("move")?.publish(data);
+      case "joy":
+        this.gbService.topicMap.get("joy")?.publish(data);
         break;
       case "dataCollectionMode":
         this.gbService.topicMap.get("dataCollection")?.publish(data);

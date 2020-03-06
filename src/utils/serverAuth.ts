@@ -38,19 +38,4 @@ export class ServerAuth {
             return false;
         })
     }
-
-    // public async loginRetry(n: number, hostname?: string) {
-    //     for (let i = 0; i < n; i++) {
-    //         const t = setTimeout(() => {
-    //             this.loginToApi(hostname).then(value => {
-    //                 if (value) {
-    //                     i=n;
-    //                     clearTimeout(t);
-    //                 } else {
-    //                     console.log("Will try " + (n-i) + " more times");
-    //                 }
-    //             });
-    //         }, i*i*5000)
-    //     }
-    // };
 }
