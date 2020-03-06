@@ -1,12 +1,14 @@
 import * as ROSLIB from "roslib";
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
 export class GbService {
 
     // If the Gb is connected
     public connected: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
     // ROS object
-    private readonly ros: any;
+    private ros: any;
 
     /**
      * List of subscriber information that is later initialized
@@ -27,18 +29,13 @@ export class GbService {
         {key: "angle", name: "/gps/angle", messageType: "std_msgs/Float64"},
         {key: "number_of_satellites", name: "/gps/satellites", messageType: "std_msgs/UInt32"},
         {key: "camera", name: "/camera/camera/image_mono/compressed", messageType: "sensor_msgs/CompressedImage"},
-        {key: "move", name: "/joy/cmd_vel", messageType: "geometry_msgs/Twist"}
+        {key: "joy", name:"/joy/joy", messageType: "sensor_msgs/Joy"},
     ];
 
     // list of topic keys and ROS subscribers
     private _topicMap: Map<string, RosSubscriber>;
 
     constructor( ) {
-        // Initialize ROS
-        this.ros = new ROSLIB.Ros({
-            url: "ws://localhost:9090",
-        });
-        // Create a new map
         this._topicMap = new Map();
         this.initializeRosConnection();
         this.initializeRov();
@@ -52,15 +49,34 @@ export class GbService {
      * Initialize ROS connected, listen for ROS connection, error, and close
      */
     public initializeRosConnection(): boolean {
-        this.ros.on("error", (e: any) => {
-            console.log(e);
-        });
-        this.ros.on("connection", () => {
-            this.connected.next(true);
-        });
+        this.attemptConnection(10).then(r => { });
         this.ros.on("close", () => {this.connected.next(false)});
         return true
     }
+
+    private attemptConnection(n: number): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            this.ros = new ROSLIB.Ros({
+                url: "ws://localhost:9090",
+            });
+            this.ros.on("error", (e: any) => {
+                console.log("ROS connection failed! Attemtping " + n + " more times!");
+                if (n <= 1) {
+                    resolve(false);
+                } else {
+                    delay(7000).then(v => {
+                        this.attemptConnection(n - 1).then(r  => { });
+                    })
+                }
+            });
+            this.ros.on("connection", () => {
+                resolve(true);
+                console.log("Connected");
+                this.connected.next(true);
+            });
+        });
+    }
+
 
     /**
      * Initialize all the ROV ROS Subscribers
