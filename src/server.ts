@@ -11,10 +11,10 @@ const gbService = new GbService();
 const serverAuth = new ServerAuth();
 const actionHandler = new ActionHandler(gbService);
 
-const address = process.env.ADDRESS || "10.0.5.38";
+const address = "10.0.4.219";
 
-const serverAddress = process.env.SERVER_ADDRESS || `http://${address}:3001`;
-const socketAddress = process.env.SOCKET_ADDRESS || `http://${address}:8000`;
+const serverAddress = `http://${address}:3001`;
+const socketAddress = `http://${address}:8000`;
 let socket;
 
 // Login to API to get auth token

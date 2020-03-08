@@ -23,7 +23,7 @@ export class ServerAuth {
      * @param hostname
      * @param port
      */
-    public async loginToApi(hostname: string = "http://localhost:3001") {
+    public async loginToApi(hostname: string = "http://10.0.4.219:3001") {
         return axios.post(`${hostname}/gb/login`, {
             username: this._username,
             password: this._password
